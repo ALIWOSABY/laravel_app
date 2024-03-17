@@ -29,6 +29,25 @@
             width: 80%;
             box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
             border-radius: 10px;
+            position: relative; /* Ensure relative positioning for child elements */
+        }
+
+        /* Style for close button */
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 10px; /* Adjust the right position as needed */
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
         }
 
         /* Style for button */
@@ -50,6 +69,7 @@
         #processTable_wrapper {
             padding: 20px;
         }
+
     </style>
 </head>
 <body>
@@ -140,6 +160,19 @@
     </div>
 </div>
 
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Delete Process</h2>
+        <p>Are you sure you want to delete this process?</p>
+        <div class="text-center">
+            <button id="confirmDeleteBtn" class="btn btn-danger">Delete</button>
+            <button id="cancelDeleteBtn" class="btn btn-secondary">Cancel</button>
+        </div>
+    </div>
+</div>
 
 
 
@@ -307,27 +340,63 @@
         loadProcesses();
 
         // Function to handle deleting a process
-        function deleteProcess(id) {
-            if (confirm("Are you sure you want to delete this process?")) {
-                $.ajax({
-                    url: "/processes/" + id,
-                    method: 'DELETE',
-                    success: function(response) {
-                        // Reload processes after deletion
-                        loadProcesses();
-                    },
-                    error: function(xhr, status, error) {
-                        console.error(xhr.responseText);
-                    }
-                });
-            }
-        }
+        // function deleteProcess(id) {
+        //     if (confirm("Are you sure you want to delete this process?")) {
+        //         $.ajax({
+        //             url: "/processes/" + id,
+        //             method: 'DELETE',
+        //             success: function(response) {
+        //                 // Reload processes after deletion
+        //                 loadProcesses();
+        //             },
+        //             error: function(xhr, status, error) {
+        //                 console.error(xhr.responseText);
+        //             }
+        //         });
+        //     }
+        // }
 
 // Add event listener to the delete button
+//         $(document).on('click', '.deleteBtn', function() {
+//             var processId = $(this).data('id');
+//             deleteProcess(processId);
+//         });
+
+
+        // Add event listener to the delete button
         $(document).on('click', '.deleteBtn', function() {
             var processId = $(this).data('id');
-            deleteProcess(processId);
+            $('#deleteModal').data('processId', processId); // Store process ID in modal data
+            $('#deleteModal').css('display', 'block'); // Open the delete modal
         });
+
+// Handle confirm delete button click
+        $('#confirmDeleteBtn').click(function() {
+            var processId = $('#deleteModal').data('processId'); // Retrieve process ID from modal data
+            deleteProcess(processId); // Call the delete function with process ID
+            $('#deleteModal').css('display', 'none'); // Close the delete modal
+        });
+
+// Handle cancel delete button click
+        $('#cancelDeleteBtn').click(function() {
+            $('#deleteModal').css('display', 'none'); // Close the delete modal
+        });
+
+
+        function deleteProcess(id) {
+            $.ajax({
+                url: "/processes/" + id,
+                method: 'DELETE',
+                success: function(response) {
+                    // Reload processes after deletion
+                    loadProcesses();
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+
 
     });
 </script>
