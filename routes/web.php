@@ -22,3 +22,23 @@ Route::get('/process', [ProcessController::class, 'index'])->name('process.index
 
 Route::get('/process/create', [ProcessController::class, 'create'])->name('process.create');
 Route::post('/process', [ProcessController::class, 'store'])->name('process.store');
+
+
+//Route::get('/process/{id}/edit', [ProcessController::class, 'edit'])->name('process.edit');
+//
+//Route::put('/process/{id}', [ProcessController::class, 'update'])->name('process.update');
+
+
+Route::get('/processes/{id}/edit', [ProcessController::class, 'edit']);
+Route::put('/processes/{id}', [ProcessController::class, 'update']);
+
+Route::delete('/processes/{id}', [ProcessController::class, 'destroy']);
+
+
+
+
+
+
+
+
+

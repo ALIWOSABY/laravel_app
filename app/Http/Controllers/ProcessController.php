@@ -26,17 +26,13 @@ class ProcessController extends Controller
     }
 
 
-    /**
-     * Show the form for creating a new resource.
-     */
+
     public function create()
     {
         return view('process.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
 
     public function store(Request $request)
     {
@@ -82,35 +78,72 @@ class ProcessController extends Controller
 
 
 
-    /**
-     * Display the specified resource.
-     */
+
     public function show(string $id)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+
+    public function edit($id)
     {
-        //
+        $process = Process::findOrFail($id);
+        return response()->json($process);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $validatedData = $request->validate([
+            'process_name' => 'nullable|string|max:255',
+            'process_owner' => 'nullable|string|max:255',
+            'prcdept_name' => 'nullable|string|max:255',
+            'prc_desc' => 'nullable|string',
+            'prc_doc' => 'nullable|file|mimes:pdf,doc,docx',
+        ]);
+
+        // Update process data in the database
+        $process = Process::findOrFail($id);
+
+        // Check if prc_doc file is provided in the request
+        if ($request->hasFile('prc_doc')) {
+            // If a new document is uploaded, delete the old one
+            if ($process->prc_doc) {
+                Storage::delete($process->prc_doc);
+            }
+
+            // Store the new document and update the file path
+            $validatedData['prc_doc'] = $request->file('prc_doc')->store('public/documents');
+
+            // Update the process with the new file path
+            $process->update($validatedData);
+
+            // Return a response indicating success
+            return response()->json(['message' => 'Process updated successfully', 'process' => $process]);
+        } else {
+            // If prc_doc is not provided, retain the existing file path
+            $validatedData['prc_doc'] = $process->prc_doc;
+
+            // Update the process with the existing file path
+            $process->update($validatedData);
+
+            // Return a response indicating success
+            return response()->json(['message' => 'Process updated successfully', 'process' => $process]);
+        }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+
+
+    public function destroy($id)
     {
-        //
+        $process = Process::findOrFail($id);
+
+        // Perform any necessary checks or validations
+
+        // Delete the process
+        $process->delete();
+
+        // Return a response indicating success
+        return response()->json(['message' => 'Process deleted successfully']);
     }
+
 }
