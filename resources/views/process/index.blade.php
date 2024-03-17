@@ -69,7 +69,6 @@
         #processTable_wrapper {
             padding: 20px;
         }
-
     </style>
 </head>
 <body>

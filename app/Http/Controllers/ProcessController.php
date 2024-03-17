@@ -91,8 +91,50 @@ class ProcessController extends Controller
         return response()->json($process);
     }
 
+//    public function update(Request $request, $id)
+//    {
+//        $validatedData = $request->validate([
+//            'process_name' => 'nullable|string|max:255',
+//            'process_owner' => 'nullable|string|max:255',
+//            'prcdept_name' => 'nullable|string|max:255',
+//            'prc_desc' => 'nullable|string',
+//            'prc_doc' => 'nullable|file|mimes:pdf,doc,docx',
+//        ]);
+//
+//        // Update process data in the database
+//        $process = Process::findOrFail($id);
+//
+//        // Check if prc_doc file is provided in the request
+//        if ($request->hasFile('prc_doc')) {
+//            // If a new document is uploaded, delete the old one
+//            if ($process->prc_doc) {
+//                Storage::delete($process->prc_doc);
+//            }
+//
+//            // Store the new document and update the file path
+//            $validatedData['prc_doc'] = $request->file('prc_doc')->store('public/documents');
+//
+//            // Update the process with the new file path
+//            $process->update($validatedData);
+//
+//            // Return a response indicating success
+//            return response()->json(['message' => 'Process updated successfully', 'process' => $process]);
+//        } else {
+//            // If prc_doc is not provided, retain the existing file path
+//            $validatedData['prc_doc'] = $process->prc_doc;
+//
+//            // Update the process with the existing file path
+//            $process->update($validatedData);
+//
+//            // Return a response indicating success
+//            return response()->json(['message' => 'Process updated successfully', 'process' => $process]);
+//        }
+//    }
+
+
     public function update(Request $request, $id)
     {
+        // Validate the incoming request data
         $validatedData = $request->validate([
             'process_name' => 'nullable|string|max:255',
             'process_owner' => 'nullable|string|max:255',
@@ -101,8 +143,11 @@ class ProcessController extends Controller
             'prc_doc' => 'nullable|file|mimes:pdf,doc,docx',
         ]);
 
-        // Update process data in the database
+        // Retrieve the process to update
         $process = Process::findOrFail($id);
+
+        // Update the process data with the validated data
+        $process->fill($validatedData);
 
         // Check if prc_doc file is provided in the request
         if ($request->hasFile('prc_doc')) {
@@ -112,23 +157,14 @@ class ProcessController extends Controller
             }
 
             // Store the new document and update the file path
-            $validatedData['prc_doc'] = $request->file('prc_doc')->store('public/documents');
-
-            // Update the process with the new file path
-            $process->update($validatedData);
-
-            // Return a response indicating success
-            return response()->json(['message' => 'Process updated successfully', 'process' => $process]);
-        } else {
-            // If prc_doc is not provided, retain the existing file path
-            $validatedData['prc_doc'] = $process->prc_doc;
-
-            // Update the process with the existing file path
-            $process->update($validatedData);
-
-            // Return a response indicating success
-            return response()->json(['message' => 'Process updated successfully', 'process' => $process]);
+            $process->prc_doc = $request->file('prc_doc')->store('public/documents');
         }
+
+        // Save the updated process data
+        $process->save();
+
+        // Return a response indicating success
+        return response()->json(['message' => 'Process updated successfully', 'process' => $process]);
     }
 
 
